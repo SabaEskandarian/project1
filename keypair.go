@@ -6,11 +6,36 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/btcsuite/btcec"
 	"github.com/btcsuite/btcnet"
 	"github.com/btcsuite/btcutil"
 )
+
+//new function for project1
+
+func generateVanityAddress(pattern string) (*btcec.PublicKey, *btcec.PrivateKey) {
+	pub, priv := generateKeyPair()
+	addr := generateAddr(pub)
+	cont, err := regexp.MatchString(pattern, addr.String())
+	if err != nil {
+		// There was an error. Log it and bail out
+		log.Fatal(err)
+	}
+	for !cont {
+		pub, priv = generateKeyPair()
+		addr = generateAddr(pub)
+		cont, err = regexp.MatchString(pattern, addr.String())
+		if err != nil {
+			// There was an error. Log it and bail out
+			log.Fatal(err)
+		}
+	}
+
+	return pub, priv
+}
+
 
 // generateKeyPair creates a key pair based on the eliptic curve
 // secp256k1. The key pair returned by this function is two points
@@ -53,7 +78,8 @@ func generateAddr(pub *btcec.PublicKey) *btcutil.AddressPubKeyHash {
 func main() {
 
 	// In order to recieve coins we must generate a public/private key pair.
-	pub, priv := generateKeyPair()
+	//pub, priv := generateKeyPair()
+	pub, priv := generateVanityAddress("saba")
 
 	// To use this address we must store our private key somewhere. Everything
 	// else can be recovered from the private key.
